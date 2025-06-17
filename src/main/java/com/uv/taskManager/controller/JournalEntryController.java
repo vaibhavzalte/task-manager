@@ -1,43 +1,55 @@
 package com.uv.taskManager.controller;
 
 import com.uv.taskManager.entity.JournalEntity;
+import com.uv.taskManager.service.JournalEntryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/journal")
 public class JournalEntryController {
-    private Map<Long ,JournalEntity> map=new HashMap<>();
+    @Autowired
+    private JournalEntryService journalEntryService;
+
     @GetMapping
-    public List<JournalEntity> getAllJournalEntity(){
-        return new ArrayList<>(map.values());
+    public List<JournalEntity> getAllJournalEntity() {
+        return journalEntryService.getAllEntities();
     }
 
     @PostMapping
-    public boolean addJournalEntry(@RequestBody JournalEntity entity){
-        map.put(entity.getId(),entity);
-        return true;
+    public ResponseEntity<JournalEntity> addJournalEntry(@RequestBody JournalEntity entity) {
+        try{
+            journalEntryService.saveEntry(entity);
+            return new ResponseEntity<>(entity,HttpStatus.CREATED);
+        }
+        catch (Exception e){
+            return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("id/{myid}")
-    public JournalEntity getEntryById(@PathVariable Long myid)
-    {
-        return map.get(myid);
+    public ResponseEntity<?> getJournalEntryById(@PathVariable Long myid) {
+        Optional<JournalEntity> journalEntity = journalEntryService.getEntityById(myid);
+        if(journalEntity.isPresent())
+        {
+            return new ResponseEntity<>(journalEntity, HttpStatus.OK);
+        }
+        return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     @DeleteMapping("id/{myid}")
-    public JournalEntity deleteById(@PathVariable Long myid)
-    {
-        return map.remove(myid);
+    public ResponseEntity<Boolean> deleteById(@PathVariable Long myid) {
+        journalEntryService.deleteEntityById(myid);
+        return new ResponseEntity<>(true,HttpStatus.OK);
     }
 
     @PutMapping("id/{myid}")
-    public JournalEntity updateById(@PathVariable Long myid,@RequestBody JournalEntity updatedEntity)
-    {
-        return map.put(myid,updatedEntity);
+    public ResponseEntity<JournalEntity> updateById(@PathVariable Long myid, @RequestBody JournalEntity updatedEntity) {
+        return journalEntryService.updateById(myid, updatedEntity);
     }
 
 }

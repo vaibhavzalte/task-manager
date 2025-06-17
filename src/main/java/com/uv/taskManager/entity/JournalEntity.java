@@ -1,5 +1,8 @@
 package com.uv.taskManager.entity;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "journal_entries")
 public class JournalEntity {
     private long id;
     private String title;
