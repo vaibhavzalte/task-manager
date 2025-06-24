@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,12 +22,21 @@ public class JournalEntryService {
     @Autowired
     UserService userService;
 
+    @Transactional
     public void saveEntry(JournalEntity journalEntity, String userName) {
-        User user = userService.findByUserName(userName);
-        journalEntity.setDate(LocalDateTime.now());
-        JournalEntity saved = journalEntryRepository.save(journalEntity);
-        user.getJournalEntities().add(saved);
-        userService.saveEntry(user);
+        try{
+            User user = userService.findByUserName(userName);
+            journalEntity.setDate(LocalDateTime.now());
+            JournalEntity saved = journalEntryRepository.save(journalEntity);
+            user.getJournalEntities().add(saved);
+            user.setUserName(null);
+            userService.saveEntry(user);
+        }
+        catch (Exception e){
+            System.out.println("exception:"+e);
+            throw new RuntimeException("failed to save entry");
+        }
+
     }
 
     public List<JournalEntity> getAllEntities() {
@@ -37,6 +47,7 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
+    @Transactional
     public void deleteEntityById(ObjectId id, String userName) {
         User user = userService.findByUserName(userName);
         user.getJournalEntities().removeIf(x -> x.getId().equals(id));
@@ -44,6 +55,7 @@ public class JournalEntryService {
         journalEntryRepository.deleteById(id);
     }
 
+    @Transactional
     public ResponseEntity<JournalEntity> updateById(String userName, ObjectId id, JournalEntity updatedEntity) {
         JournalEntity oldEntity = journalEntryRepository.findById(id).orElse(null);
         if (oldEntity != null) {
