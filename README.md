@@ -5,3 +5,5 @@ day-15 Lombok used & ObjectId used
 day-16 @DBRef annotation and added user wise entries
 day-17 @Transactional annotation added but it work only allowed on a replica set
 day-18 mongodb atlas added and transactional code fixed
+day-19 spring security
+day-20 spring security
