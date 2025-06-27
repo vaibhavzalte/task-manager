@@ -7,3 +7,4 @@ day-17 @Transactional annotation added but it work only allowed on a replica set
 day-18 mongodb atlas added and transactional code fixed
 day-19 spring security
 day-20 spring security
+day-21 Adding Authentication to Journal Endpoints

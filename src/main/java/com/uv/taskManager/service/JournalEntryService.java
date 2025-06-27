@@ -24,15 +24,14 @@ public class JournalEntryService {
 
     @Transactional
     public void saveEntry(JournalEntity journalEntity, String userName) {
-        try{
+        try {
             User user = userService.findByUserName(userName);
             journalEntity.setDate(LocalDateTime.now());
             JournalEntity saved = journalEntryRepository.save(journalEntity);
             user.getJournalEntities().add(saved);
-            userService.saveEntry(user);
-        }
-        catch (Exception e){
-            System.out.println("exception:"+e);
+            userService.saveUser(user);
+        } catch (Exception e) {
+            System.out.println("exception:" + e);
             throw new RuntimeException("failed to save entry");
         }
 
@@ -47,21 +46,34 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public void deleteEntityById(ObjectId id, String userName) {
-        User user = userService.findByUserName(userName);
-        user.getJournalEntities().removeIf(x -> x.getId().equals(id));
-        userService.saveEntry(user);
-        journalEntryRepository.deleteById(id);
+    public boolean deleteById(ObjectId id, String userName) {
+        boolean isRemoved = false;
+        try {
+            User user = userService.findByUserName(userName);
+            boolean removed = user.getJournalEntities().removeIf(x -> x.getId().equals(id));
+            if (removed) {
+                userService.saveUser(user);
+                journalEntryRepository.deleteById(id);
+                isRemoved = true;
+            }
+            return isRemoved;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occur during deleting entity." + e.getMessage());
+        }
     }
 
     @Transactional
     public ResponseEntity<JournalEntity> updateById(String userName, ObjectId id, JournalEntity updatedEntity) {
-        JournalEntity oldEntity = journalEntryRepository.findById(id).orElse(null);
-        if (oldEntity != null) {
-            oldEntity.setTitle(updatedEntity.getTitle() != null && !updatedEntity.getTitle().isEmpty() ? updatedEntity.getTitle() : oldEntity.getTitle());
-            oldEntity.setContent(updatedEntity.getContent() != null && !updatedEntity.getContent().isEmpty() ? updatedEntity.getContent() : oldEntity.getContent());
-            journalEntryRepository.save(oldEntity);
-            return new ResponseEntity<>(oldEntity, HttpStatus.CREATED);
+        User user = userService.findByUserName(userName);
+        List<JournalEntity> list = user.getJournalEntities().stream().filter(x -> x.getId().equals(id)).toList();
+        if (!list.isEmpty()) {
+            JournalEntity oldEntity = journalEntryRepository.findById(id).orElse(null);
+            if (oldEntity != null) {
+                oldEntity.setTitle(updatedEntity.getTitle() != null && !updatedEntity.getTitle().isEmpty() ? updatedEntity.getTitle() : oldEntity.getTitle());
+                oldEntity.setContent(updatedEntity.getContent() != null && !updatedEntity.getContent().isEmpty() ? updatedEntity.getContent() : oldEntity.getContent());
+                journalEntryRepository.save(oldEntity);
+                return new ResponseEntity<>(oldEntity, HttpStatus.CREATED);
+            }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
