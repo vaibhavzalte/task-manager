@@ -14,3 +14,9 @@
     * priority-> commandline > application.properties > YAML
 * day-24 JUnit Testing
 * day-25 JUnit Testing using Mockito @Mock @InjectMocks
+* day-26 Master Spring Boot Profiles
+    - added spring.profiles.active=dev in intellije Env. variable
+    - `.\mvnw clean package -D spring.profiles.active=dev` flag `-D` used when test cases is present   (setting JVM
+      properties that why used `-D`)
+    - `java -jar .\taskManager-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod` running application and passing
+      argument `spring.profiles.active=prod`

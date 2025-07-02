@@ -8,3 +8,6 @@ spring:
       auto-index-creation: true
   main:
     allow-circular-references: true
+
+server:
+  port: 8081
