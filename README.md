@@ -20,3 +20,5 @@
       properties that why used `-D`)
     - `java -jar .\taskManager-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod` running application and passing
       argument `spring.profiles.active=prod`
+* day-27 Logging 
+  - ```logging.level.<package-name>=DEBUG ``` in application properties 

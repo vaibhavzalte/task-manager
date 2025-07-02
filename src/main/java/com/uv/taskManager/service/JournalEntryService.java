@@ -4,6 +4,8 @@ import com.uv.taskManager.entity.JournalEntity;
 import com.uv.taskManager.entity.User;
 import com.uv.taskManager.repository.JournalEntryRepository;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,8 @@ public class JournalEntryService {
     @Autowired
     UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(JournalEntryService.class);
+
     @Transactional
     public void saveEntry(JournalEntity journalEntity, String userName) {
         try {
@@ -31,7 +35,7 @@ public class JournalEntryService {
             user.getJournalEntities().add(saved);
             userService.saveUser(user);
         } catch (Exception e) {
-            System.out.println("exception:" + e);
+            logger.info("failed to save entry" + e.getMessage());
             throw new RuntimeException("failed to save entry");
         }
 
